@@ -4,4 +4,6 @@ Fig. 2 shows a typical solution of the HCO-motor system. To generate figure, run
 
 Fig. 3 shows the trajectoreis on the same time scale and the iSRC solution. To generate figure, run Fig_3.m
 
-Fig
+Fig. 4 shows all performance-sensitivity patterns in the HCO model. The data of this figure is generated using sensitivity_Yu.m as the simulation code. For Fig. 4, to produce the plot from precomputed data (excitation-contralateral.mat and inhibition-contralateral.mat), run Fig_4.m
+
+
