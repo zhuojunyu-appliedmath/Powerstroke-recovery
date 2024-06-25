@@ -1,7 +1,7 @@
 % find period, power-stroke duration, and initial and end point on power stroke and recovery for a limit cycle
 function [T0,T0_ps,init_ps,end_ps,init_re,end_re] = phases(gsyn,Ethresh,gfb,Efb,kappa,F_ell,L0,Lslope,init)
 
-tF1 = 15000; tF2 = 2800;
+tF1 = 15000; tF2 = 4000;
 
 options = odeset('RelTol',1e-8,'AbsTol',1e-8);
 options_ps = odeset('Events',@event_ps,'RelTol',1e-8,'AbsTol',1e-8);
