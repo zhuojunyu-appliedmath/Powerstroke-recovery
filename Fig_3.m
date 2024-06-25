@@ -13,13 +13,13 @@ Efb=-80;        %feedback synaptic threshold
 gfb=0.001;      %feedback synaptic conductance
 F_ell=2;        %applied load
 kappa=1;        %applied load strength
-pert=0.05;       %perturbation to the strength
+pert=0.1;       %perturbation to the strength
 kappa_pert=kappa+pert;  %perturbed strengthdt=0.01; 
 dt=0.01;
 
 L0=10; Lslope=1; 
 
-init = [15.0000000000134,19.8250085179671,0.300957072526219,0.783148580449431,-3.20213847588544e-42,0.534953604170953,2.67423237468234,0];
+init = [15.0000   19.8248    0.3010    0.7832    0.0000    0.5349    2.6749    0];
 
 %% Find unperturbed solution with kappa and perturbed solution with kappa+pert
 [T0,T0_ps,init_ps_u,end_ps_u,init_re_u,end_re_u] = phases(gsyn,Ethresh,gfb,Efb,kappa,F_ell,L0,Lslope,init);  %unperturbed
@@ -45,11 +45,11 @@ beta0 = T0_ps/T0;
 beta1=(T1_ps*T0-T0_ps*T1)/T0^2;  %linear shift in the proportion of power-stroke duration
 
 %% Find the iSRC with piecewise uniform rescaling; start from power stroke
-tF=T0; tspan=0:.dt:tF;
+tF=4*T0; tspan=0:dt:tF;
 init_src = [init_ps_u 0 (init_ps_p-init_ps_u)/pert];
 
 options = odeset('RelTol',1e-8,'AbsTol',1e-8);
-[~,G] = ode15s(@iSRC,tspan,init_src,options,gsyn,Ethresh,gfb,Efb,kappa,F_ell,L0,Lslope,nu1_ps,nu1_re);
+[Tsrc,G] = ode15s(@iSRC,tspan,init_src,options,gsyn,Ethresh,gfb,Efb,kappa,F_ell,L0,Lslope,nu1_ps,nu1_re);
 V1=G(:,1); V2=G(:,2); N1=G(:,3); N2=G(:,4); A1=G(:,5); A2=G(:,6); x=G(:,7); y=G(:,8);  %trajectory
 src=G(:,9:15);  %isrc
 
@@ -57,7 +57,7 @@ src=G(:,9:15);  %isrc
 kappa1=1;
 init_ps1=[15.0000   19.8248    0.3010    0.7832    0.0000    0.5349    2.6749   0];
 T01=3054.62; T0_ps1=1544.16;
-tspan1=0:.01:T01;
+tspan1=0:.01:4*T01;
 
 kappa2=2;
 init_ps2=[15.0000   19.7314    0.3006    0.7845   -0.0000    0.5295    3.4569   0];
@@ -72,6 +72,7 @@ tspan2=0:.01:T02;
 
 figure
 xlim=[0 T01];
+xlim_src=[2*T01 3*T01+8];
 ind=T01/T02;
 
 subplot(4,2,1)
@@ -87,11 +88,11 @@ axis([xlim ylim_V]);
 ylabel('V'); set(gca,'FontSize',12);
 
 subplot(4,2,3)
-plot(tspan,src(:,1),'-b','LineWidth',1.5); hold on
-plot(tspan,src(:,2),'-r','LineWidth',1.5);
-ylim_srcV=[-6.5 9.5];
+plot(Tsrc,src(:,1),'-b','LineWidth',1.5); hold on
+plot(Tsrc,src(:,2),'-r','LineWidth',1.5);
+ylim_srcV=[-11 16];
 shade_ps(T0,T0_ps,ylim_srcV)
-axis([xlim ylim_srcV]); hold off
+axis([xlim_src ylim_srcV]); hold off
 ylabel('iSRC - V'); set(gca,'FontSize',12);
 
 subplot(4,2,2)
@@ -106,11 +107,11 @@ axis([xlim ylim_N]);
 ylabel('N'); set(gca,'FontSize',12);
 
 subplot(4,2,4)
-plot(tspan,src(:,3),'-b','LineWidth',1.5); hold on
-plot(tspan,src(:,4),'-r','LineWidth',1.5); 
-ylim_srcN=[-0.032 0.045];
+plot(Tsrc,src(:,3),'-b','LineWidth',1.5); hold on
+plot(Tsrc,src(:,4),'-r','LineWidth',1.5); 
+ylim_srcN=[-0.05 0.07];
 shade_ps(T0,T0_ps,ylim_srcN)
-axis([xlim ylim_srcN]); hold off
+axis([xlim_src ylim_srcN]); hold off
 ylabel('iSRC - N'); set(gca,'FontSize',12);
 
 subplot(4,2,5)
@@ -125,11 +126,11 @@ axis([xlim ylim_A]);
 ylabel('A'); set(gca,'FontSize',12);
 
 subplot(4,2,7)
-plot(tspan,src(:,5),'-b','LineWidth',1.5); hold on
-plot(tspan,src(:,6),'-r','LineWidth',1.5); 
-ylim_srcA=[-.5 .5];
+plot(Tsrc,src(:,5),'-b','LineWidth',1.5); hold on
+plot(Tsrc,src(:,6),'-r','LineWidth',1.5); 
+ylim_srcA=[-.8 .8];
 shade_ps(T0,T0_ps,ylim_srcA)
-axis([xlim ylim_srcA]); hold off
+axis([xlim_src ylim_srcA]); hold off
 xlabel('time'); ylabel('iSRC - A'); set(gca,'FontSize',12);
 
 subplot(4,2,6)
@@ -142,8 +143,8 @@ axis([xlim,ylim_x]);
 ylabel('x'); set(gca,'FontSize',12);
 
 subplot(4,2,8)
-plot(tspan,src(:,7),'-k','LineWidth',1.5); hold on
-ylim_srcx=[0.53 1.52];
+plot(Tsrc,src(:,7),'-k','LineWidth',1.5); hold on
+ylim_srcx=[0.6 1.52];
 shade_ps(T0,T0_ps,ylim_srcx)
-axis([xlim ylim_srcx]); hold off
+axis([xlim_src ylim_srcx]); hold off
 xlabel('time'); ylabel('iSRC - x'); set(gca,'FontSize',12);
